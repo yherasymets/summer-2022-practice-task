@@ -86,7 +86,7 @@ func FindTrains(departureStation, arrivalStation, criteria string) (Trains, erro
 	if err != nil {
 		return nil, fmt.Errorf("unmarshaling file error: %v", err)
 	}
-	trains := make(Trains, 0, len(allTrains))
+	var trains Trains
 	for i := range allTrains {
 		if arrivalStationId == allTrains[i].ArrivalStationID &&
 			departureStationId == allTrains[i].DepartureStationID {
