@@ -37,14 +37,12 @@ func main() {
 		*((*time.Time)(ptr)) = t
 	})
 
+	var departureStation, arrivalStation, criteria string
 	fmt.Print("Departure Station:")
-	var departureStation string
 	fmt.Scan(&departureStation)
 	fmt.Print("Arrival Station:")
-	var arrivalStation string
 	fmt.Scan(&arrivalStation)
 	fmt.Print("Criteria:")
-	var criteria string
 	fmt.Scan(&criteria)
 
 	result, err := FindTrains(departureStation, arrivalStation, criteria)
@@ -61,16 +59,13 @@ func FindTrains(departureStation, arrivalStation, criteria string) (Trains, erro
 	if departureStation == "" {
 		return nil, fmt.Errorf("empty departure station")
 	}
-
 	if arrivalStation == "" {
 		return nil, fmt.Errorf("empty arrival station")
 	}
-
 	departureStationId, err := strconv.Atoi(departureStation)
 	if err != nil {
 		return nil, fmt.Errorf("bad departure station input")
 	}
-
 	arrivalStationId, err := strconv.Atoi(arrivalStation)
 	if err != nil {
 		return nil, fmt.Errorf("bad arrival station input")
@@ -80,12 +75,12 @@ func FindTrains(departureStation, arrivalStation, criteria string) (Trains, erro
 	if err != nil {
 		return nil, fmt.Errorf("read file error: %v", err)
 	}
-
 	var allTrains Trains
 	err = json.Unmarshal(body, &allTrains)
 	if err != nil {
 		return nil, fmt.Errorf("unmarshaling file error: %v", err)
 	}
+
 	var trains Trains
 	for i := range allTrains {
 		if arrivalStationId == allTrains[i].ArrivalStationID &&
@@ -96,14 +91,23 @@ func FindTrains(departureStation, arrivalStation, criteria string) (Trains, erro
 	switch strings.ToLower(criteria) {
 	case "price":
 		sort.Slice(trains, func(i, j int) bool {
+			if trains[i].Price == trains[j].Price {
+				return trains[i].TrainID < trains[j].TrainID
+			}
 			return trains[i].Price < trains[j].Price
 		})
 	case "arrival-time":
 		sort.Slice(trains, func(i, j int) bool {
+			if trains[i].ArrivalTime.Equal(trains[j].ArrivalTime) {
+				return trains[i].TrainID < trains[j].TrainID
+			}
 			return trains[i].ArrivalTime.Before(trains[j].ArrivalTime)
 		})
 	case "departure-time":
 		sort.Slice(trains, func(i, j int) bool {
+			if trains[i].DepartureTime.Equal(trains[j].DepartureTime) {
+				return trains[i].TrainID < trains[j].TrainID
+			}
 			return trains[i].DepartureTime.Before(trains[j].DepartureTime)
 		})
 	default:
